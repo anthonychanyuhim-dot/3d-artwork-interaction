@@ -1,5 +1,9 @@
+/* Classical serif face for the navigation touchpoints (graceful Georgia/Garamond
+   fallback if the webfont is unavailable). Must precede all rules per CSS spec. */
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500&display=swap');
+
 /* Full-screen layer that sits above the canvas but lets clicks fall through,
-   except on the interactive panel itself (CLAUDE.md §4: UI lives in the DOM). */
+   except on the interactive panel itself (CLAUDE.md sec.4: UI lives in the DOM). */
 .overlay-root {
   position: fixed;
   inset: 0;
@@ -7,10 +11,6 @@
   pointer-events: none;
   font-family: var(--sans, system-ui, sans-serif);
 }
-
-/* Classical serif face for the navigation touchpoints (graceful Georgia/Garamond
-   fallback if the webfont is unavailable). */
-@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500&display=swap');
 
 /* ---- Border navigation arrows (Renaissance fine-art aesthetic) ------------- */
 /* No container, border, or drop-shadow — just a delicate ivory glyph that warms
