@@ -151,6 +151,16 @@
   transform: translate(-50%, 0);
 }
 
+/* Immersive idle fade: after 5s without hover the HUD recedes near-invisible so
+   the fresco reads clean, on an ultra-slow cinematic curve. pointer-events are
+   killed so camera drags pass straight through the box (no button misclicks);
+   the hover-wake is restored via a window pointermove hit-test in Overlay.tsx. */
+.overlay-panel.is-visible.is-faded {
+  opacity: 0.02;
+  pointer-events: none;
+  transition: opacity 1.5s ease-in-out;
+}
+
 .overlay-title {
   margin: 0;
   font-size: 24px;

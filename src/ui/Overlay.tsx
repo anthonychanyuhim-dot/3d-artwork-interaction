@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { artworksRegistry } from '../data/artworks';
 import { useGallery } from '../state/GalleryContext';
 import './Overlay.css';
@@ -18,6 +18,22 @@ import './Overlay.css';
 export function Overlay() {
   const { state, dispatch } = useGallery();
   const [detailsOpen, setDetailsOpen] = useState(false);
+  // Immersive HUD: the description box auto-fades after 5s of no hover so the
+  // fresco reads clean, and wakes back to full opacity when hovered.
+  const [isFaded, setIsFaded] = useState(false);
+  const fadeTimerRef = useRef<number | null>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+
+  const clearFadeTimer = () => {
+    if (fadeTimerRef.current !== null) {
+      window.clearTimeout(fadeTimerRef.current);
+      fadeTimerRef.current = null;
+    }
+  };
+  const startFadeTimer = () => {
+    clearFadeTimer();
+    fadeTimerRef.current = window.setTimeout(() => setIsFaded(true), 5000);
+  };
 
   // Mounted whenever an artwork is active (focusing / focused / returning).
   // In explore there is no active artwork, so nothing renders.
@@ -28,6 +44,38 @@ export function Overlay() {
   useEffect(() => {
     if (state.mode !== 'focused') setDetailsOpen(false);
   }, [state.mode]);
+
+  // Each time the focused artwork changes (or we settle into `focused`), reset
+  // to full opacity and arm the 5s idle fade. The Details modal suspends it.
+  useEffect(() => {
+    setIsFaded(false);
+    if (state.mode === 'focused' && !detailsOpen) startFadeTimer();
+    else clearFadeTimer();
+    return clearFadeTimer;
+  }, [state.activeArtworkId, state.mode, detailsOpen]);
+
+  // While faded the box has `pointer-events: none` (so camera drags pass through),
+  // which means its onMouseEnter can't fire. Restore hover-wake with a window
+  // pointermove hit-test against the panel's rect: moving the cursor over the
+  // near-invisible box brings it back to full opacity instantly.
+  useEffect(() => {
+    if (!isFaded) return;
+    const onPointerMove = (event: PointerEvent) => {
+      const rect = panelRef.current?.getBoundingClientRect();
+      if (!rect) return;
+      if (
+        event.clientX >= rect.left &&
+        event.clientX <= rect.right &&
+        event.clientY >= rect.top &&
+        event.clientY <= rect.bottom
+      ) {
+        clearFadeTimer();
+        setIsFaded(false);
+      }
+    };
+    window.addEventListener('pointermove', onPointerMove);
+    return () => window.removeEventListener('pointermove', onPointerMove);
+  }, [isFaded]);
 
   // While the modal is open, swallow the keys CameraRig listens for (capture
   // phase, before they reach its window-level handler): Esc closes the modal
@@ -112,10 +160,16 @@ export function Overlay() {
 
       {artwork && (
       <div
-        className={`overlay-panel${visible ? ' is-visible' : ''}`}
+        ref={panelRef}
+        className={`overlay-panel${visible ? ' is-visible' : ''}${isFaded ? ' is-faded' : ''}`}
         role="dialog"
         aria-hidden={!visible}
         aria-label={`${artwork.title} details`}
+        onMouseEnter={() => {
+          clearFadeTimer();
+          setIsFaded(false);
+        }}
+        onMouseLeave={startFadeTimer}
       >
         {/* Structural handle on the panel's top edge - the "down" spatial shift:
             from the ceiling it dives to the wall beneath; from a wall it returns. */}
