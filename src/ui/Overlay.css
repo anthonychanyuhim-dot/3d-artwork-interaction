@@ -1,0 +1,106 @@
+/* Full-screen layer that sits above the canvas but lets clicks fall through,
+   except on the interactive panel itself (CLAUDE.md §4: UI lives in the DOM). */
+.overlay-root {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  pointer-events: none;
+  font-family: var(--sans, system-ui, sans-serif);
+}
+
+.overlay-panel {
+  /* Hidden by default; fades/rises in only when `.is-visible` is applied
+     (focused, unlocked, and not zoomed in for inspection). */
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  position: absolute;
+  left: 50%;
+  bottom: 32px;
+  transform: translate(-50%, 12px);
+  transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s ease;
+  width: min(680px, calc(100vw - 48px));
+  box-sizing: border-box;
+  padding: 24px 28px;
+  border-radius: 16px;
+  background: rgba(16, 17, 23, 0.78);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 20px 50px -12px rgba(0, 0, 0, 0.6);
+  color: #f3f4f6;
+}
+
+.overlay-panel.is-visible {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translate(-50%, 0);
+}
+
+.overlay-title {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: -0.4px;
+  color: #ffffff;
+}
+
+.overlay-artist {
+  margin: 2px 0 14px;
+  font-size: 14px;
+  font-style: italic;
+  color: #aab0bd;
+}
+
+.overlay-description {
+  margin: 0 0 20px;
+  font-size: 15px;
+  line-height: 1.55;
+  color: #d6d9e0;
+}
+
+.overlay-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.overlay-btn {
+  /* Inherits pointer-events from the panel, so buttons are only clickable
+     while the panel is visible (not during fade-out transitions). */
+  appearance: none;
+  cursor: pointer;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.06);
+  color: #f3f4f6;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 9px 16px;
+  border-radius: 10px;
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.05s ease;
+}
+
+.overlay-btn:hover {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.32);
+}
+
+.overlay-btn:active {
+  transform: translateY(1px);
+}
+
+.overlay-btn:focus-visible {
+  outline: 2px solid var(--accent, #aa3bff);
+  outline-offset: 2px;
+}
+
+.overlay-btn--primary {
+  margin-left: auto;
+  background: rgba(170, 59, 255, 0.22);
+  border-color: rgba(170, 59, 255, 0.5);
+}
+
+.overlay-btn--primary:hover {
+  background: rgba(170, 59, 255, 0.34);
+}
