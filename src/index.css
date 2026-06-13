@@ -50,20 +50,38 @@
   }
 }
 
+/* Fullscreen canvas app: the gallery fills the viewport. (The old Vite scaffold
+   constrained #root to 1126px + flex, which collapsed the R3F canvas to ~1px.) */
+html,
+body,
 #root {
-  width: 1126px;
-  max-width: 100%;
-  margin: 0 auto;
-  text-align: center;
-  border-inline: 1px solid var(--border);
-  min-height: 100svh;
-  display: flex;
-  flex-direction: column;
-  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
 }
 
 body {
-  margin: 0;
+  overflow: hidden;
+  background: #000;
+}
+
+/* The Three.js canvas container — pinned fullscreen and fully ISOLATED from any
+   sibling/overlay layout. Nothing (UI panels, HUD arrows, modals) can ever shift
+   or resize it: overlays float above on a higher z-index with zero layout impact. */
+.canvas-root {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 1;
+  overflow: hidden;
+}
+
+/* Kill inline-element whitespace under the WebGL canvas so it sits flush. */
+canvas {
+  display: block;
 }
 
 h1,

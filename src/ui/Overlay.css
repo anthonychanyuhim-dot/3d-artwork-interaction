@@ -8,6 +8,119 @@
   font-family: var(--sans, system-ui, sans-serif);
 }
 
+/* Classical serif face for the navigation touchpoints (graceful Georgia/Garamond
+   fallback if the webfont is unavailable). */
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500&display=swap');
+
+/* ---- Border navigation arrows (Renaissance fine-art aesthetic) ------------- */
+/* No container, border, or drop-shadow — just a delicate ivory glyph that warms
+   to antique gold on hover, like gilded curation marks beside the frescoes. */
+.nav-arrow {
+  position: fixed;
+  z-index: 12;
+  pointer-events: auto;
+  appearance: none;
+  border: none;
+  background: none;
+  padding: 14px;
+  color: rgba(245, 242, 235, 0.7);
+  font-family: 'Cinzel', 'Cormorant Garamond', Garamond, Georgia, 'Times New Roman', serif;
+  font-size: 34px;
+  font-weight: 400;
+  line-height: 1;
+  cursor: pointer;
+  /* The lightest legibility veil over bright frescoes — not a heavy shadow. */
+  text-shadow: 0 1px 5px rgba(0, 0, 0, 0.45);
+  transition: color 0.4s ease, text-shadow 0.4s ease, transform 0.2s ease;
+}
+
+.nav-arrow:hover,
+.nav-arrow:focus-visible {
+  /* Soft antique-gold sheen with a fine-brushed glow. */
+  color: #d4af37;
+  text-shadow: 0 0 10px rgba(212, 175, 55, 0.45), 0 1px 4px rgba(0, 0, 0, 0.4);
+  outline: none;
+}
+
+.nav-arrow:active {
+  color: #c5a059;
+}
+
+.nav-arrow:disabled {
+  opacity: 0.25;
+  cursor: default;
+  pointer-events: none;
+}
+
+/* Exact-centre pinning per edge; the gentle scale-up is folded into the same
+   transform so the centring offset is never lost on hover/focus. */
+.nav-arrow--left {
+  left: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+.nav-arrow--left:hover,
+.nav-arrow--left:focus-visible {
+  transform: translateY(-50%) scale(1.08);
+}
+.nav-arrow--right {
+  right: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+.nav-arrow--right:hover,
+.nav-arrow--right:focus-visible {
+  transform: translateY(-50%) scale(1.08);
+}
+.nav-arrow--up {
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.nav-arrow--up:hover,
+.nav-arrow--up:focus-visible {
+  transform: translateX(-50%) scale(1.08);
+}
+
+/* ---- Panel "back" handle (tab on the description box's top edge) ----------- */
+.panel-handle {
+  position: absolute;
+  bottom: 100%; /* sits flush on top of the panel, like a structural tab */
+  left: 50%;
+  transform: translateX(-50%);
+  appearance: none;
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 24px;
+  padding: 0;
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  border-bottom: none;
+  border-radius: 11px 11px 0 0;
+  background: rgba(16, 17, 23, 0.82);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  color: rgba(245, 242, 235, 0.75);
+  font-family: 'Cinzel', Garamond, Georgia, serif;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  transition: color 0.35s ease, border-color 0.35s ease;
+}
+
+.panel-handle:hover,
+.panel-handle:focus-visible {
+  color: #d4af37;
+  border-color: rgba(212, 175, 55, 0.7);
+  outline: none;
+}
+
+.panel-handle:disabled {
+  opacity: 0.4;
+  cursor: default;
+  pointer-events: none;
+}
+
 .overlay-panel {
   /* Hidden by default; fades/rises in only when `.is-visible` is applied
      (focused, unlocked, and not zoomed in for inspection). */
@@ -103,4 +216,184 @@
 
 .overlay-btn--primary:hover {
   background: rgba(170, 59, 255, 0.34);
+}
+
+/* ---- View Details modal ---------------------------------------------------- */
+
+/* Full-screen layer that intercepts ALL pointer/scroll input (pointer-events:
+   auto), so the 3D scene behind it can't be rotated, panned, or zoomed. */
+.detail-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 15;
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(6, 7, 11, 0.62);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  animation: detail-fade-in 0.2s ease;
+}
+
+@keyframes detail-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.detail-card {
+  position: relative;
+  width: min(620px, 100%);
+  max-height: min(80vh, 720px);
+  overflow-y: auto;
+  box-sizing: border-box;
+  padding: 32px 36px 36px;
+  border-radius: 18px;
+  background: rgba(20, 21, 28, 0.96);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 30px 70px -16px rgba(0, 0, 0, 0.75);
+  color: #e9eaf0;
+  animation: detail-rise 0.22s ease;
+}
+
+@keyframes detail-rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.detail-close {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  appearance: none;
+  cursor: pointer;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.05);
+  color: #e9eaf0;
+  font-size: 22px;
+  line-height: 1;
+  border-radius: 9px;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.detail-close:hover {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.detail-close:focus-visible {
+  outline: 2px solid var(--accent, #aa3bff);
+  outline-offset: 2px;
+}
+
+.detail-title {
+  margin: 0 40px 6px 0;
+  font-size: 26px;
+  font-weight: 600;
+  letter-spacing: -0.4px;
+  color: #ffffff;
+}
+
+.detail-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 22px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 14px;
+  color: #aab0bd;
+}
+
+.detail-artist {
+  font-style: italic;
+}
+
+.detail-dot {
+  color: #595f6b;
+}
+
+.detail-date {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.2px;
+}
+
+.detail-section {
+  margin: 0 0 22px;
+}
+
+.detail-section:last-of-type {
+  margin-bottom: 0;
+}
+
+.detail-label {
+  margin: 0 0 8px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.4px;
+  color: #c084fc;
+}
+
+.detail-text {
+  margin: 0;
+  font-size: 15.5px;
+  line-height: 1.65;
+  color: #d6d9e0;
+}
+
+/* "Did You Know?" gets a soft accent card so it reads as a distinct curatorial note. */
+.detail-section--fact {
+  padding: 16px 18px;
+  border-radius: 12px;
+  background: rgba(170, 59, 255, 0.1);
+  border: 1px solid rgba(170, 59, 255, 0.22);
+}
+
+.detail-section--fact .detail-label {
+  color: #d8b4fe;
+}
+
+.detail-wiki {
+  display: inline-flex;
+  align-items: center;
+  margin-top: 22px;
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  color: #f3f4f6;
+  background: rgba(170, 59, 255, 0.22);
+  border: 1px solid rgba(170, 59, 255, 0.5);
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.05s ease;
+}
+
+.detail-wiki:hover {
+  background: rgba(170, 59, 255, 0.36);
+  border-color: rgba(170, 59, 255, 0.7);
+}
+
+.detail-wiki:active {
+  transform: translateY(1px);
+}
+
+.detail-wiki:focus-visible {
+  outline: 2px solid var(--accent, #aa3bff);
+  outline-offset: 2px;
 }

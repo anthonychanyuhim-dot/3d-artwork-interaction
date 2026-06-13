@@ -1,15 +1,19 @@
 import { GalleryProvider } from './state/GalleryContext';
 import { GalleryScene } from './scene/GalleryScene';
 import { Overlay } from './ui/Overlay';
+import { LoadingScreen } from './ui/LoadingScreen';
+import './index.css';
 
 function App() {
   return (
     <GalleryProvider>
-      <div style={{ position: 'fixed', inset: 0 }}>
+      {/* Isolated fullscreen canvas layer (z-index 1) — see .canvas-root. */}
+      <div className="canvas-root">
         <GalleryScene />
       </div>
-      {/* DOM overlay lives OUTSIDE the Canvas (CLAUDE.md §4). */}
+      {/* DOM HUD layers float ABOVE the canvas (z-index 10+), zero layout impact. */}
       <Overlay />
+      <LoadingScreen />
     </GalleryProvider>
   );
 }
