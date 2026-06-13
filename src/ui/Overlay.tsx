@@ -60,7 +60,10 @@ export function Overlay() {
   const zoneCount = artwork
     ? artworksRegistry.filter((a) => a.zone === artwork.zone).length
     : 0;
-  const showLeftRight = zoneCount > 1;
+  // Left/Right are shown when the zone has neighbours to slide between, and also
+  // forced on for the single-panel altar wall, where they bridge across to the
+  // front-most fresco of the South (left) and North (right) side walls.
+  const showLeftRight = zoneCount > 1 || artwork?.zone === 'altar_wall';
 
   const navigate = (direction: 'up' | 'down' | 'left' | 'right') => () => {
     if (locked) return;

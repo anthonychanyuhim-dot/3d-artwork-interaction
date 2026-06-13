@@ -41,6 +41,11 @@ export const initialGalleryState: GalleryState = {
 
 // The central ceiling masterpiece the Up arrow flies to from the gallery floor.
 const CEILING_ENTRY_ID = 'creation-of-adam';
+// End-wall bridge targets. Sequence increases with +Z on every row, so stepping
+// off the altar end (-Z) lands on the Last Judgment, and off the entrance end
+// (+Z) lands on the Baptism of Christ (the designated entrance-wall stand-in).
+const ALTAR_WALL_ID = 'the-last-judgment';
+const ENTRANCE_BRIDGE_ID = 'baptism-of-christ';
 
 /** Members of a zone, ordered along the nave (altar → entrance) by sequence. */
 function zoneMembers(zone: ArtworkZone): ArtworkData[] {
@@ -99,7 +104,12 @@ function resolveDirection(activeId: string | null, direction: NavDirection): Dir
     if (direction === 'up' || direction === 'down') {
       if (members.length <= 1) return null;
       const step = direction === 'up' ? 1 : -1;
-      const nextIndex = (index + step + members.length) % members.length;
+      const nextIndex = index + step;
+      // Down off the altar-end of the Genesis row (e.g. Separation of Light from
+      // Darkness) bridges straight down to the altar wall's Last Judgment.
+      if (nextIndex < 0) return { kind: 'focus', id: ALTAR_WALL_ID };
+      // Up off the entrance-end is a dead-end (no entrance fresco above).
+      if (nextIndex >= members.length) return null;
       return { kind: 'focus', id: members[nextIndex].id };
     }
     const wallZone: ArtworkZone =
@@ -108,11 +118,34 @@ function resolveDirection(activeId: string | null, direction: NavDirection): Dir
     return id ? { kind: 'focus', id } : null;
   }
 
-  // SIDE WALLS / ALTAR — left/right slide along the wall cycle.
+  // ALTAR WALL: left/right bridge across to the front-most fresco (nearest the
+  // altar, sequence 0) of each side wall. Facing the altar wall the screen axes
+  // are left = -X = South wall, right = +X = North wall.
+  if (current.zone === 'altar_wall' && (direction === 'left' || direction === 'right')) {
+    const wallZone: ArtworkZone = direction === 'left' ? 'side_wall_south' : 'side_wall_north';
+    const id = zoneMembers(wallZone)[0]?.id ?? null;
+    return id ? { kind: 'focus', id } : null;
+  }
+
+  // SIDE WALLS / ALTAR - left/right step to the IMMEDIATE physical neighbour.
   if (direction === 'left' || direction === 'right') {
     if (members.length <= 1) return null;
-    const step = direction === 'right' ? 1 : -1;
-    const nextIndex = (index + step + members.length) % members.length;
+    // Screen-left/right depends on which way the camera faces the wall. Both
+    // walls store sequence increasing with +Z, but the viewer faces -X on the
+    // SOUTH wall and +X on the NORTH wall, so their screen axes are mirror
+    // images of each other:
+    //   - North wall: screen-right = +Z = next sequence (index + 1).
+    //   - South wall: screen-right = -Z = previous sequence (index - 1).
+    // Map the on-screen direction to the correct per-wall index step so LEFT
+    // always lands on the panel physically to the viewer's left, and vice-versa.
+    const rightStep = current.zone === 'side_wall_south' ? -1 : 1;
+    const step = direction === 'right' ? rightStep : -rightStep;
+    const nextIndex = index + step;
+    // End-wall bridges instead of dead-ends: stepping off the altar end (-Z, the
+    // low sequence index) jumps to the Last Judgment; stepping off the entrance
+    // end (+Z, past the last index) jumps to the Baptism of Christ.
+    if (nextIndex < 0) return { kind: 'focus', id: ALTAR_WALL_ID };
+    if (nextIndex >= members.length) return { kind: 'focus', id: ENTRANCE_BRIDGE_ID };
     return { kind: 'focus', id: members[nextIndex].id };
   }
 
