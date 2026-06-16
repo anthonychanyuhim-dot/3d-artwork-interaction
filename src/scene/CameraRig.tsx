@@ -180,6 +180,12 @@ export function CameraRig() {
         lookAtTarget.x = 0;
         focusPos.x = 0;
       }
+      // Ceiling-vault figures near the springline (e.g. the lunettes at y~9) would
+      // otherwise pull the camera below the floor. Keep the eye above floor level
+      // while still looking up at the panel (lookAt target is unchanged).
+      if (artwork.zone === 'ceiling_vault') {
+        focusPos.y = Math.max(focusPos.y, 2);
+      }
 
       // Smooth flight from the *live* (possibly zoomed/panned) coordinates to the
       // fresh canonical framing - gsap.to() reads the current live values as the

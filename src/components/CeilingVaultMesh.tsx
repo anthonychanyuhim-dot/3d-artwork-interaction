@@ -29,6 +29,7 @@ const SUBGROUP_COLOR: Record<string, string> = {
   Sibyl: '#b58cc4',
   Ancestors: '#8fae8f',
   Pendentive: '#c98f8f',
+  Lunette: '#d8cdb0', // pale parchment - the inscribed ancestor tablets
 };
 
 export function CeilingVaultMesh({

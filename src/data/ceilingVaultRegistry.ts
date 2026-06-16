@@ -21,8 +21,9 @@ import { uvToWorld } from './ceilingVaultLayout';
 const SUBGROUP_BLURB: Record<string, string> = {
   Prophet: 'One of the twelve seers (prophets and sibyls) enthroned along the vault, foretelling the coming of Christ.',
   Sibyl: 'One of the twelve seers (prophets and sibyls) enthroned along the vault; the sibyls carry pagan prophecy into the Christian scheme.',
-  Ancestors: 'Part of the genealogy of Christ, painted in the triangular spandrels between the thrones.',
+  Ancestors: 'Painted in the triangular severies of the genealogy of Christ; Wikipedia notes these figures have not been positively identified, so the bay is named after its adjacent lunette.',
   Pendentive: 'One of the four corner pendentives showing an Old Testament scene of Israel\'s miraculous salvation.',
+  Lunette: 'A tablet lunette above the chapel windows, inscribed with names from the genealogy of Christ in the Gospel of Matthew (Abraham to Joseph).',
 };
 
 export const ceilingVaultArtworks: ArtworkData[] = ceilingData.panels
