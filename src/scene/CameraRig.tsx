@@ -164,8 +164,8 @@ export function CameraRig() {
       const distance =
         artwork.zone === 'altar_wall'
           ? 12 // the massive altar wall
-          : artwork.zone === 'ceiling_center'
-            ? 9.5 // safe, un-cropped, stays above the floor (panel sits at y~10.6)
+          : artwork.zone === 'ceiling_center' || artwork.zone === 'ceiling_vault'
+            ? 9.5 // ceiling panels / vault figures: stay below, look up, un-cropped
             : 8; // side-wall frescoes (width 6) - back up so neighbours trail off the sides
 
       baseDistanceRef.current = distance;

@@ -22,7 +22,7 @@ export const HALF_DEPTH = 25; // end walls at z = ±25 → long nave fitting all
 // Springline: height at which the side walls stop and the vault begins.
 export const SPRING_HEIGHT = 8;
 // Rise of the vault above the springline (apex sits at SPRING_HEIGHT + VAULT_RISE).
-const VAULT_RISE = 4;
+export const VAULT_RISE = 4;
 
 // Warm plaster for walls + vault; cooler stone for the floor.
 const PLASTER = '#d9d2c2';
