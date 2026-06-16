@@ -36,13 +36,16 @@ const FIGURES = PANELS.filter((p) => !p.id.startsWith('GEN-'));
 const HEROES = FIGURES.filter((p) => !!p.image);
 const MARKERS = FIGURES.filter((p) => !p.image);
 
-// Float each panel this far INTO the chapel, clear of the curved grey vault shell,
-// so it is never occluded by (or co-planar with) the plaster from inside the room.
-const LIFT = 0.8;
-// The panels aim at the nave interior - a low point on the central axis - so their
-// front faces always point down into the room (never out toward the sky).
-const INTERIOR_Y = 3;
-const HERO_HEIGHT = 5; // world units up the slope; width follows the image aspect
+// --- Position adjustment variables (anti-clipping) -------------------------
+// Float each panel this far INWARD along the vault's inward normal, so it sits
+// just below the plaster shell - never co-planar with it (no z-fighting / clip).
+const LIFT = 0.4;
+// Pull each panel toward the nave centre (X and Z) so its edges never poke out
+// through the side walls or the altar/entrance end walls near the springline.
+const CENTER_PULL = 0.92;
+// Tiny extra drop so the panel reads as floating just inside the ceiling.
+const DROP_Y = 0.05;
+const HERO_HEIGHT = 4; // world units up the slope; width follows the image aspect
 
 // Gilded marker tints per subgroup (fallback when no fresco plate exists).
 const SUBGROUP_COLOR: Record<string, string> = {
@@ -61,35 +64,42 @@ interface CeilingVaultMeshProps {
 }
 
 /**
- * Orientation + lifted position for a panel on the vault. We point the panel's
- * FRONT (+Z) at the chapel interior - a low point on the central axis directly
- * "under" the panel - so it always faces down into the room (never out toward the
- * sky), and we float it `LIFT` units along that same inward direction so it sits
- * clear of the curved grey shell (which would otherwise occlude it from inside).
- * Using the explicit interior target (not the ellipse normal) makes the inward
- * direction unambiguous regardless of which slope the panel is on.
+ * Orientation + clip-safe position for a panel on the vault. The panel is laid
+ * TANGENT (flush) to the barrel slope: its +Z front uses the vault's inward
+ * (room-facing) normal, so the flat plane is a chord of the curve and the shell
+ * always bows OUTWARD away from it - meaning once floated even slightly inward it
+ * can never pierce the roof. We then pull the anchor toward the nave centre (X/Z)
+ * and drop it a touch (Y) so edges near the walls / end-walls stay inside too.
  */
 function slopeFrame(
   pos: [number, number, number],
+  chapelWidth: number,
+  corniceHeight: number,
+  vaultRise: number,
 ): { position: [number, number, number]; quaternion: [number, number, number, number] } {
   const [x, y, z] = pos;
-  // Vector from the panel toward the nave interior (central axis, low in the room).
-  const inward = new THREE.Vector3(-x, INTERIOR_Y - y, 0);
-  if (inward.lengthSq() < 1e-6) inward.set(0, -1, 0);
-  inward.normalize();
+  const halfW = chapelWidth / 2;
+  // Inward (room-facing) normal of the vault ellipse cross-section -> flush pitch.
+  const normal = new THREE.Vector3(-x / (halfW * halfW), -(y - corniceHeight) / (vaultRise * vaultRise), 0);
+  if (normal.lengthSq() < 1e-6) normal.set(0, -1, 0); // apex -> straight down
+  normal.normalize();
 
-  // Upright basis: right runs along the nave, up runs up the slope, +Z = inward.
-  let right = new THREE.Vector3().crossVectors(new THREE.Vector3(0, 1, 0), inward);
-  if (right.lengthSq() < 1e-6) right.set(0, 0, -1); // degenerate when inward is vertical
+  // Upright basis: right runs along the nave, up runs up the slope, +Z = normal.
+  let right = new THREE.Vector3().crossVectors(new THREE.Vector3(0, 1, 0), normal);
+  if (right.lengthSq() < 1e-6) right.set(0, 0, -1); // degenerate at the apex
   right.normalize();
-  const up = new THREE.Vector3().crossVectors(inward, right).normalize();
+  const up = new THREE.Vector3().crossVectors(normal, right).normalize();
 
   const quat = new THREE.Quaternion().setFromRotationMatrix(
-    new THREE.Matrix4().makeBasis(right, up, inward),
+    new THREE.Matrix4().makeBasis(right, up, normal),
   );
-  const lifted = new THREE.Vector3(x, y, z).addScaledVector(inward, LIFT);
+
+  // Pull toward the nave centre (X/Z) + tiny drop (Y), then float inward along the
+  // normal so the whole panel sits cleanly inside the shell with no clipping.
+  const anchored = new THREE.Vector3(x * CENTER_PULL, y - DROP_Y, z * CENTER_PULL);
+  anchored.addScaledVector(normal, LIFT);
   return {
-    position: [lifted.x, lifted.y, lifted.z],
+    position: [anchored.x, anchored.y, anchored.z],
     quaternion: [quat.x, quat.y, quat.z, quat.w],
   };
 }
@@ -129,7 +139,7 @@ function CeilingHeroes({
       {HEROES.map((panel, i) => {
         const texture = textures[i];
         const world = uvToWorld(panel.viewport.u, panel.viewport.v, chapelLength, chapelWidth, corniceHeight, vaultRise);
-        const { position, quaternion } = slopeFrame(world);
+        const { position, quaternion } = slopeFrame(world, chapelWidth, corniceHeight, vaultRise);
         const img = texture.image as { width: number; height: number } | undefined;
         const aspect = img && img.height > 0 ? img.width / img.height : 0.7;
         const planeW = HERO_HEIGHT * aspect; // local X runs along the nave
@@ -161,7 +171,7 @@ function CeilingMarkers({
     <>
       {MARKERS.map((panel) => {
         const world = uvToWorld(panel.viewport.u, panel.viewport.v, chapelLength, chapelWidth, corniceHeight, vaultRise);
-        const { position, quaternion } = slopeFrame(world);
+        const { position, quaternion } = slopeFrame(world, chapelWidth, corniceHeight, vaultRise);
         const extentX = panel.viewport.h * chapelWidth;
         const extentZ = panel.viewport.w * chapelLength;
         const color = SUBGROUP_COLOR[panel.subgroup] ?? '#cccccc';
