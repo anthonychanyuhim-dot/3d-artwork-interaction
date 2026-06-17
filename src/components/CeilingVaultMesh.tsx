@@ -37,6 +37,7 @@ const LIFT = 0.4; // float inward along the vault's inward normal (clear of shel
 const CENTER_PULL = 0.92; // scale X/Z toward the nave centre so edges clear walls
 const DROP_Y = 0.05; // tiny extra drop so it reads as floating inside the ceiling
 const HERO_HEIGHT = 4; // world units up the slope; width follows the image aspect
+const LUN_HEIGHT = 2.6; // lunettes are wide + sit close together above the windows
 const FALLBACK_ASPECT = 0.72; // portrait-ish placeholder until the real aspect is known
 
 // Solid lit placeholder shown until (or unless) the fresco texture arrives.
@@ -97,11 +98,12 @@ interface HeroPanelProps {
   url: string;
   position: [number, number, number];
   quaternion: [number, number, number, number];
+  baseHeight: number;
   onClick: (event: ThreeEvent<MouseEvent>) => void;
 }
 
 /** One hero fresco: mounts immediately, swaps parchment -> fresco on 200 OK. */
-function HeroPanel({ id, url, position, quaternion, onClick }: HeroPanelProps) {
+function HeroPanel({ id, url, position, quaternion, baseHeight, onClick }: HeroPanelProps) {
   const [texture, setTexture] = useState<THREE.Texture | null>(null);
 
   useEffect(() => {
@@ -132,8 +134,8 @@ function HeroPanel({ id, url, position, quaternion, onClick }: HeroPanelProps) {
 
   const img = texture?.image as { width: number; height: number } | undefined;
   const aspect = img && img.height > 0 ? img.width / img.height : FALLBACK_ASPECT;
-  const planeW = HERO_HEIGHT * aspect; // local X runs along the nave
-  const planeH = HERO_HEIGHT; // local Y runs up the slope
+  const planeW = baseHeight * aspect; // local X runs along the nave
+  const planeH = baseHeight; // local Y runs up the slope
 
   return (
     <group name={`artwork-${id}`} position={position} quaternion={quaternion}>
@@ -176,7 +178,9 @@ export function CeilingVaultMesh({ chapelLength, chapelWidth, corniceHeight, vau
 
   return (
     <group name="ceiling-vault">
-      {/* 16 hero frescoes - non-suspending, parchment fallback until loaded. */}
+      {/* Hero frescoes (Prophets, Sibyls, Pendentives + the 14 lunettes) -
+          non-suspending, parchment fallback until each image loads. Lunettes
+          render shorter so their wide plates don't overlap between window bays. */}
       {HEROES.map((panel) => (
         <HeroPanel
           key={panel.id}
@@ -184,11 +188,12 @@ export function CeilingVaultMesh({ chapelLength, chapelWidth, corniceHeight, vau
           url={panel.image as string}
           position={frames[panel.id].position}
           quaternion={frames[panel.id].quaternion}
+          baseHeight={panel.subgroup === 'Lunette' ? LUN_HEIGHT : HERO_HEIGHT}
           onClick={handleClick(panel.id)}
         />
       ))}
 
-      {/* Lunettes + Ancestor severies: tinted, clickable marker hotspots. */}
+      {/* Ancestor severies (no standalone Commons plate): tinted marker hotspots. */}
       {MARKERS.map((panel) => {
         const { position, quaternion } = frames[panel.id];
         const extentX = panel.viewport.h * chapelWidth;
