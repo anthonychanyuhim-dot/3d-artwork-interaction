@@ -43,7 +43,10 @@ const LIFT = 0.4; // float inward along the vault's inward normal (clear of shel
 const CENTER_PULL = 0.92; // scale X/Z toward the nave centre so edges clear walls
 const DROP_Y = 0.05; // tiny extra drop so it reads as floating inside the ceiling
 const HERO_HEIGHT = 4; // world units up the slope; width follows the image aspect
-const LUN_HEIGHT = 2.6; // lunettes are wide + sit close together above the windows
+const LUN_HEIGHT = 2.2; // lunettes are wide + sit close together above the windows
+// Lunettes sit at the springline; shift each one UP its own slope so the lower
+// half clears the wall (otherwise it is clipped and only the top shows).
+const LUN_UP_SHIFT = 1.4;
 const FALLBACK_ASPECT = 0.72; // placeholder shape until the real aspect is known
 
 const PARCHMENT = '#d2b48c'; // solid lit placeholder while a fresco loads
@@ -72,6 +75,7 @@ function slopeFrame(
   chapelWidth: number,
   corniceHeight: number,
   vaultRise: number,
+  upShift = 0,
 ): { position: [number, number, number]; quaternion: [number, number, number, number] } {
   const [x, y, z] = pos;
   const halfW = chapelWidth / 2;
@@ -85,6 +89,7 @@ function slopeFrame(
   const quat = new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().makeBasis(right, up, normal));
   const anchored = new THREE.Vector3(x * CENTER_PULL, y - DROP_Y, z * CENTER_PULL);
   anchored.addScaledVector(normal, LIFT);
+  anchored.addScaledVector(up, upShift); // shift up the slope (lunettes clear the wall)
   return {
     position: [anchored.x, anchored.y, anchored.z],
     quaternion: [quat.x, quat.y, quat.z, quat.w],
@@ -156,7 +161,8 @@ export function CeilingVaultMesh({ chapelLength, chapelWidth, corniceHeight, vau
     const map: Record<string, ReturnType<typeof slopeFrame>> = {};
     for (const p of FIGURES) {
       const world = uvToWorld(p.viewport.u, p.viewport.v, chapelLength, chapelWidth, corniceHeight, vaultRise);
-      map[p.id] = slopeFrame(world, chapelWidth, corniceHeight, vaultRise);
+      const upShift = p.subgroup === 'Lunette' ? LUN_UP_SHIFT : 0;
+      map[p.id] = slopeFrame(world, chapelWidth, corniceHeight, vaultRise, upShift);
     }
     return map;
   }, [chapelLength, chapelWidth, corniceHeight, vaultRise]);
