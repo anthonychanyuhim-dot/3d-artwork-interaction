@@ -1,4 +1,4 @@
-import { Suspense, useEffect, useMemo } from 'react';
+import { Suspense, useMemo } from 'react';
 import { useLoader } from '@react-three/fiber';
 import * as THREE from 'three';
 import type { ThreeEvent } from '@react-three/fiber';
@@ -32,6 +32,11 @@ const PANELS = ceilingData.panels as unknown as CeilingPanelJson[];
 const FIGURES = PANELS.filter((p) => !p.id.startsWith('GEN-'));
 const HEROES = FIGURES.filter((p) => !!p.image);
 const MARKERS = FIGURES.filter((p) => !p.image);
+
+// Warm the texture cache for EVERY hero/lunette image up front, so each panel's
+// useLoader returns an already-resolved texture instead of racing 50+ concurrent
+// suspensions (which left some panels stuck on the parchment fallback).
+HEROES.forEach((p) => useLoader.preload(THREE.TextureLoader, p.image as string));
 
 // --- Position adjustment variables (anti-clipping) -------------------------
 const LIFT = 0.4; // float inward along the vault's inward normal (clear of shell)
@@ -91,10 +96,9 @@ type Click = (event: ThreeEvent<MouseEvent>) => void;
 /** The fresco itself - loaded via the proven R3F useLoader path (suspends). */
 function HeroArt({ url, baseHeight, onClick }: { url: string; baseHeight: number; onClick: Click }) {
   const texture = useLoader(THREE.TextureLoader, url);
-  useEffect(() => {
-    texture.colorSpace = THREE.SRGBColorSpace;
-    texture.needsUpdate = true;
-  }, [texture]);
+  // Set sRGB synchronously in render (exactly like the working Artwork.tsx), so
+  // the texture is configured before the material first uses it.
+  texture.colorSpace = THREE.SRGBColorSpace;
   const img = texture.image as { width: number; height: number } | undefined;
   const aspect = img && img.height > 0 ? img.width / img.height : FALLBACK_ASPECT;
   return (
