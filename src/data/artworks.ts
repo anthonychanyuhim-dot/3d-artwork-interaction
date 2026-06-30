@@ -13,13 +13,11 @@
  * per-piece, and inventing their text would violate the verified-only rule.
  */
 
-import { ceilingVaultArtworks } from './ceilingVaultRegistry';
 
 /** Architectural zone within the chapel — drives layout + grouping. */
 export type ArtworkZone =
   | 'ceiling_center'
   | 'ceiling_spandrel'
-  | 'ceiling_vault'
   | 'side_wall_south'
   | 'side_wall_north'
   | 'altar_wall';
@@ -51,7 +49,7 @@ export interface ArtworkData {
   activePeriod: { startYear: number; endYear: number };
 }
 
-const coreArtworks: ArtworkData[] = [
+export const artworksRegistry: ArtworkData[] = [
   // ===========================================================================
   // CEILING — Genesis narrative (those with standalone Wikipedia articles)
   // ===========================================================================
@@ -520,11 +518,3 @@ const coreArtworks: ArtworkData[] = [
     wikiUrl: 'https://en.wikipedia.org/wiki/The_Last_Judgment_(Michelangelo)',
   },
 ];
-
-/**
- * The live registry the whole app consumes: the hand-authored core works plus the
- * 24 derived ceiling-vault figures (Prophets, Sibyls, Ancestors, Pendentives).
- * The nine Genesis scenes already live above as `ceiling_center` and are not
- * duplicated by the ceiling-vault builder.
- */
-export const artworksRegistry: ArtworkData[] = [...coreArtworks, ...ceilingVaultArtworks];

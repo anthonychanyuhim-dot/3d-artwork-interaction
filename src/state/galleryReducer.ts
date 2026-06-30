@@ -118,24 +118,6 @@ function resolveDirection(activeId: string | null, direction: NavDirection): Dir
     return id ? { kind: 'focus', id } : null;
   }
 
-  // CEILING VAULT FIGURES (Prophets / Sibyls / Ancestors / Pendentives): left and
-  // right walk the figure tour in `order`; up rises to the Genesis scene nearest
-  // by Z (the textured central strip); down returns to the gallery.
-  if (current.zone === 'ceiling_vault') {
-    if (direction === 'left' || direction === 'right') {
-      if (members.length <= 1) return null;
-      const step = direction === 'right' ? 1 : -1;
-      const nextIndex = index + step;
-      if (nextIndex < 0 || nextIndex >= members.length) return null;
-      return { kind: 'focus', id: members[nextIndex].id };
-    }
-    if (direction === 'up') {
-      const id = nearestByZ('ceiling_center', z);
-      return id ? { kind: 'focus', id } : null;
-    }
-    return { kind: 'back' }; // down -> exit to the gallery
-  }
-
   // ALTAR WALL: left/right bridge across to the front-most fresco (nearest the
   // altar, sequence 0) of each side wall. Facing the altar wall the screen axes
   // are left = -X = South wall, right = +X = North wall.

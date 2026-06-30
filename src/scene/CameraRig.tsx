@@ -132,9 +132,6 @@ export function CameraRig() {
       // matrix update up the whole ancestor chain (no stale / polluted pivots).
       const center = new THREE.Vector3();
       const forward = new THREE.Vector3(0, 0, 1);
-      // Panel's own "up the slope" axis - used to roll the camera so tangent
-      // ceiling-vault frescoes are framed upright (not rotated 90 degrees).
-      const panelUp = new THREE.Vector3(0, 1, 0);
       const group = scene.getObjectByName(`artwork-${artwork.id}`);
       const mesh = group?.children.find(
         (child): child is THREE.Mesh => (child as THREE.Mesh).isMesh,
@@ -146,13 +143,11 @@ export function CameraRig() {
         const quaternion = new THREE.Quaternion();
         source.getWorldQuaternion(quaternion);
         forward.applyQuaternion(quaternion);
-        panelUp.applyQuaternion(quaternion);
       } else {
         center.set(...artwork.position);
         forward.applyEuler(new THREE.Euler(...artwork.rotation));
       }
       forward.normalize();
-      panelUp.normalize();
       if (![center.x, center.y, center.z].every(Number.isFinite)) {
         center.set(...artwork.position);
       }
@@ -161,21 +156,16 @@ export function CameraRig() {
       const onAxis = artwork.zone === 'ceiling_center' || artwork.zone === 'altar_wall';
       if (onAxis) center.x = 0;
 
-      // Camera roll: the ceiling-vault figures are tangent to the slope, so frame
-      // them with the panel's own up axis (else the view is rolled 90 degrees and
-      // the fresco lands sideways / off-centre). Other zones use the registry up.
-      const targetUp =
-        artwork.zone === 'ceiling_vault'
-          ? panelUp.clone()
-          : new THREE.Vector3(...(artwork.cameraUp ?? [0, 1, 0])).normalize();
+      // Camera roll from the registry (ceiling looks straight up -> explicit up).
+      const targetUp = new THREE.Vector3(...(artwork.cameraUp ?? [0, 1, 0])).normalize();
 
       // FIXED, HARD-CLAMPED focus distance per zone (anti-overzoom; no dynamic
       // multipliers). The camera stops well back so the whole piece fits on screen.
       const distance =
         artwork.zone === 'altar_wall'
           ? 12 // the massive altar wall
-          : artwork.zone === 'ceiling_center' || artwork.zone === 'ceiling_vault'
-            ? 9.5 // ceiling panels / vault figures: stay below, look up, un-cropped
+          : artwork.zone === 'ceiling_center'
+            ? 9.5 // ceiling panels: stay below, look up, un-cropped
             : 8; // side-wall frescoes (width 6) - back up so neighbours trail off the sides
 
       baseDistanceRef.current = distance;
@@ -189,12 +179,6 @@ export function CameraRig() {
       if (onAxis) {
         lookAtTarget.x = 0;
         focusPos.x = 0;
-      }
-      // Ceiling-vault figures near the springline (e.g. the lunettes at y~9) would
-      // otherwise pull the camera below the floor. Keep the eye above floor level
-      // while still looking up at the panel (lookAt target is unchanged).
-      if (artwork.zone === 'ceiling_vault') {
-        focusPos.y = Math.max(focusPos.y, 2);
       }
 
       // Smooth flight from the *live* (possibly zoomed/panned) coordinates to the

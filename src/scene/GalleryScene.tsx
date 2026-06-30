@@ -7,9 +7,8 @@ import type { ArtworkData } from '../data/artworks';
 import { useGallery } from '../state/GalleryContext';
 import { Artwork, CEILING_WIDTH } from './Artwork';
 import { CameraRig, HOME_POSITION, HOME_TARGET } from './CameraRig';
-import { SistineVaultMesh, HALF_WIDTH, HALF_DEPTH, SPRING_HEIGHT, VAULT_RISE } from './SistineVaultMesh';
+import { SistineVaultMesh } from './SistineVaultMesh';
 import { SistineSideWallMesh } from './SistineSideWallMesh';
-import { CeilingVaultMesh } from '../components/CeilingVaultMesh';
 
 // Current position of the chronological timeline. Only artworks whose activePeriod
 // spans this year are rendered (e.g. a pre-1508 ceiling would swap out once
@@ -103,15 +102,6 @@ export function GalleryScene() {
 
       {/* Procedural barrel-vaulted gallery shell (Sistine-evoking architecture). */}
       <SistineVaultMesh />
-
-      {/* Append-only ceiling-vault atlas module: 33-panel waypoint scaffold mapped
-          onto the vault. Owns only ceiling hotspots - no side-wall / HUD changes. */}
-      <CeilingVaultMesh
-        chapelLength={2 * HALF_DEPTH}
-        chapelWidth={2 * HALF_WIDTH}
-        corniceHeight={SPRING_HEIGHT}
-        vaultRise={VAULT_RISE}
-      />
 
       <Suspense fallback={null}>
         {ceiling.length > 0 && <CeilingRow artworks={ceiling} />}
