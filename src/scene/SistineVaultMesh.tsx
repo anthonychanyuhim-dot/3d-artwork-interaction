@@ -24,9 +24,10 @@ export const SPRING_HEIGHT = 8;
 // Rise of the vault above the springline (apex sits at SPRING_HEIGHT + VAULT_RISE).
 export const VAULT_RISE = 4;
 
-// Warm plaster for walls + vault; cooler stone for the floor.
-const PLASTER = '#d9d2c2';
-const FLOOR_STONE = '#4a4a52';
+// Dark-theme finishes: deep warm stone for the walls + vault so the frescoes read
+// as glowing focal points, and a near-black polished floor with a faint sheen.
+const PLASTER = '#39342c';
+const FLOOR_STONE = '#141319';
 
 /** Vault cross-section height at a given x: a shallow cosine lobe over the width. */
 function vaultHeight(x: number): number {
@@ -83,7 +84,7 @@ export function SistineVaultMesh() {
       {/* Floor */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]} receiveShadow>
         <planeGeometry args={[2 * HALF_WIDTH, 2 * HALF_DEPTH]} />
-        <meshStandardMaterial color={FLOOR_STONE} roughness={0.85} metalness={0.05} side={THREE.DoubleSide} />
+        <meshStandardMaterial color={FLOOR_STONE} roughness={0.5} metalness={0.3} side={THREE.DoubleSide} />
       </mesh>
 
       {/* Side walls (x = ±HALF_WIDTH) — stop at the springline; the vault takes over. */}

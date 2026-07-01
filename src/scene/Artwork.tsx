@@ -98,7 +98,17 @@ export function Artwork({ artwork, position, fixedWidth }: ArtworkProps) {
     <group name={`artwork-${artwork.id}`} position={position ?? artwork.position} rotation={artwork.rotation}>
       <mesh ref={meshRef} onClick={handleClick}>
         <planeGeometry args={[planeWidth, planeHeight]} />
-        <meshStandardMaterial map={texture} side={THREE.DoubleSide} toneMapped={false} />
+        {/* Emissive map lets each fresco self-illuminate, so it stays bright and
+            reads as a glowing focal point against the dark chapel, independent of
+            the moody ambient lighting. */}
+        <meshStandardMaterial
+          map={texture}
+          emissiveMap={texture}
+          emissive="#ffffff"
+          emissiveIntensity={0.55}
+          side={THREE.DoubleSide}
+          toneMapped={false}
+        />
       </mesh>
     </group>
   );
