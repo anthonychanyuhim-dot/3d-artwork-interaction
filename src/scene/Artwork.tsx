@@ -96,6 +96,19 @@ export function Artwork({ artwork, position, fixedWidth }: ArtworkProps) {
 
   return (
     <group name={`artwork-${artwork.id}`} position={position ?? artwork.position} rotation={artwork.rotation}>
+      {/* Gilded frame: a glowing gold border just behind each fresco for a grand,
+          Byzantine feel. Non-raycastable so it never intercepts fresco clicks. */}
+      <mesh position={[0, 0, -0.05]} raycast={() => null}>
+        <planeGeometry args={[planeWidth + 0.4, planeHeight + 0.4]} />
+        <meshStandardMaterial
+          color="#c8a24a"
+          emissive="#7a5c1e"
+          emissiveIntensity={0.6}
+          metalness={0.5}
+          roughness={0.4}
+          side={THREE.DoubleSide}
+        />
+      </mesh>
       <mesh ref={meshRef} onClick={handleClick}>
         <planeGeometry args={[planeWidth, planeHeight]} />
         {/* Emissive map lets each fresco self-illuminate, so it stays bright and
@@ -105,7 +118,7 @@ export function Artwork({ artwork, position, fixedWidth }: ArtworkProps) {
           map={texture}
           emissiveMap={texture}
           emissive="#ffffff"
-          emissiveIntensity={0.55}
+          emissiveIntensity={0.9}
           side={THREE.DoubleSide}
           toneMapped={false}
         />

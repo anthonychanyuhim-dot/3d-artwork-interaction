@@ -24,10 +24,11 @@ export const SPRING_HEIGHT = 8;
 // Rise of the vault above the springline (apex sits at SPRING_HEIGHT + VAULT_RISE).
 export const VAULT_RISE = 4;
 
-// Dark-theme finishes: deep warm stone for the walls + vault so the frescoes read
-// as glowing focal points, and a near-black polished floor with a faint sheen.
-const PLASTER = '#39342c';
-const FLOOR_STONE = '#141319';
+// Dark, grand, golden finishes: deep warm gold-brown stone for the walls + vault
+// so the gilded frescoes read as glowing focal points, and a near-black polished
+// floor with a faint warm sheen that catches the candlelight.
+const PLASTER = '#3a3123';
+const FLOOR_STONE = '#161009';
 
 /** Vault cross-section height at a given x: a shallow cosine lobe over the width. */
 function vaultHeight(x: number): number {

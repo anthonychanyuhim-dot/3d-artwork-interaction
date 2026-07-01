@@ -95,24 +95,26 @@ export function GalleryScene() {
       {/* Dark, candlelit-chapel theme: a deep near-black background and matching
           fog let the long nave fall away into shadow so the frescoes read as
           glowing focal points. */}
-      <color attach="background" args={['#0a0912']} />
-      <fog attach="fog" args={['#0a0912', 34, 88]} />
+      {/* Dark, grand, golden Byzantine theme: a deep warm gold-black background and
+          matching fog let the nave fall into shadow so the gilded frescoes glow. */}
+      <color attach="background" args={['#0c0904']} />
+      <fog attach="fog" args={['#0c0904', 34, 90]} />
 
-      {/* Moody lighting — low warm ambient + a faint cool sky fill for depth, plus
-          a row of warm "candlelight" point lights that pool onto the art and the
-          vault while the architecture stays in shadow. Kept bright enough that
-          every fresco still reads clearly. */}
-      <ambientLight intensity={0.55} color="#fff0da" />
-      <hemisphereLight args={['#3a3552', '#0a0912', 0.3]} />
-      <directionalLight position={[8, 16, 6]} intensity={0.3} color="#ffe4bd" />
+      {/* Warm candlelit lighting - a low gold ambient + a warm gold "sky" fill for
+          grandeur, plus a row of amber point lights pooling over the gilded art and
+          vault while the architecture stays in shadow. The frescoes self-illuminate
+          (emissive), so the room can stay dim without losing any painting. */}
+      <ambientLight intensity={0.5} color="#ffe6bb" />
+      <hemisphereLight args={['#4a3a1e', '#0c0904', 0.35]} />
+      <directionalLight position={[8, 16, 6]} intensity={0.28} color="#ffd89a" />
       {[-18, -6, 6, 18].map((z) => (
         <pointLight
           key={z}
           position={[0, 9, z]}
-          intensity={0.7}
-          distance={38}
+          intensity={0.85}
+          distance={40}
           decay={1.05}
-          color="#ffb878"
+          color="#ffab45"
         />
       ))}
 
