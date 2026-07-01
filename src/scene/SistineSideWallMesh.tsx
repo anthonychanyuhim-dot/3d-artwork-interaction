@@ -22,9 +22,9 @@ const FRESCO_BOTTOM = DRAPERY_HEIGHT + 0.15; // frescoes rest just above the dra
 const UPPER_BAND_BOTTOM = 6.8; // cornice + windows occupy here -> the springline
 const SURFACE_INSET = 0.06; // sit just in front of the structural wall plane
 
-const DRAPERY_COLOR = '#8a6a2e'; // rich gilded silk (grand Byzantine gold)
-const CORNICE_COLOR = '#7a5f2a'; // gilded cornice band that catches the candlelight
-const WINDOW_COLOR = '#161009'; // dark high-window recesses (warm gold-black)
+const DRAPERY_COLOR = '#b9a06b'; // muted antique-gold silk
+const CORNICE_COLOR = '#d4ccba'; // pale plaster cornice
+const WINDOW_COLOR = '#23252e'; // dark high-window recesses
 
 interface SistineSideWallMeshProps {
   wall: 'south' | 'north';

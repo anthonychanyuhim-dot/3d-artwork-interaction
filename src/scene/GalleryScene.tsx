@@ -92,30 +92,12 @@ export function GalleryScene() {
         }
       }}
     >
-      {/* Dark, candlelit-chapel theme: a deep near-black background and matching
-          fog let the long nave fall away into shadow so the frescoes read as
-          glowing focal points. */}
-      {/* Dark, grand, golden Byzantine theme: a deep warm gold-black background and
-          matching fog let the nave fall into shadow so the gilded frescoes glow. */}
-      <color attach="background" args={['#0c0904']} />
-      <fog attach="fog" args={['#0c0904', 34, 90]} />
-
-      {/* Warm candlelit lighting - a low gold ambient + a warm gold "sky" fill for
-          grandeur, plus a row of amber point lights pooling over the gilded art and
-          vault while the architecture stays in shadow. The frescoes self-illuminate
-          (emissive), so the room can stay dim without losing any painting. */}
-      <ambientLight intensity={0.5} color="#ffe6bb" />
-      <hemisphereLight args={['#4a3a1e', '#0c0904', 0.35]} />
-      <directionalLight position={[8, 16, 6]} intensity={0.28} color="#ffd89a" />
+      {/* Interior lighting — the long nave needs ambient fill plus a row of soft
+          point lights down its length so the vault and walls read evenly. */}
+      <ambientLight intensity={0.85} />
+      <directionalLight position={[10, 15, 5]} intensity={0.5} />
       {[-18, -6, 6, 18].map((z) => (
-        <pointLight
-          key={z}
-          position={[0, 9, z]}
-          intensity={0.85}
-          distance={40}
-          decay={1.05}
-          color="#ffab45"
-        />
+        <pointLight key={z} position={[0, 9, z]} intensity={0.4} distance={32} decay={1.1} />
       ))}
 
       {/* Procedural barrel-vaulted gallery shell (Sistine-evoking architecture). */}
